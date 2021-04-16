@@ -1,6 +1,6 @@
+import React, { useContext, useState, useEffect } from "react";
 import { Button, Empty, Modal, Form, Input, Table } from "antd";
 import { FileAddOutlined, DeleteOutlined, FormOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import React, { useContext, useState, useEffect } from "react";
 import { AppContext } from "../store/store";
 import { Sentence } from "./sentence";
 import { IWord } from "./interfaces/iword";

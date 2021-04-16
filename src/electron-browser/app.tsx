@@ -4,7 +4,7 @@ import { TabLayout } from "./components/layout";
 //
 export function App(): JSX.Element {
     const [state, dispatch] = useReducer(reducer, {
-        type: 'edit',
+        type: 'view',
         selectedKey: undefined
     });
     // return <div>💖 Hello World</div>;
