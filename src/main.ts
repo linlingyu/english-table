@@ -1,5 +1,6 @@
 import { app, Display, screen, BrowserWindow, Rectangle } from "electron";
 import path from "path";
+import { menu } from "./menu";
 
 app.whenReady().then(() => {
     const display: Display = screen.getPrimaryDisplay(),
@@ -14,7 +15,8 @@ app.whenReady().then(() => {
             }
         });
     // 
-    win.loadFile(path.join(app.getAppPath(), 'out', 'electron-browser', 'index.html'));
-    win.webContents.openDevTools();
-    // win.loadFile(path.join(__dirname, 'index.html'));
+    menu.initialize(win);
+    // win.loadFile(path.join(app.getAppPath(), 'out', 'electron-browser', 'index.html'));
+    win.loadFile(path.join(__dirname, 'electron-browser', 'index.html'));
+    // win.webContents.openDevTools();
 });

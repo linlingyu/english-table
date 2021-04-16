@@ -4,7 +4,7 @@ import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import { nanoid } from "nanoid";
 // 
-interface IDatabase {
+export interface IDatabase {
     tree: ITreeEntity[];
     word: IWordEntity[];
     sentence: ISentenceEntity[];
@@ -147,5 +147,10 @@ export const dataSource: IDataSource = {
     deleteSentences(ids: string[]): Promise<0 | 1> {
         db.get('sentence').remove((record: ISentenceEntity) => ids.includes(record.id)).write();
         return Promise.resolve(0);
+    },
+    // 
+    getAllData(): Promise<IDatabase> {
+        const data: IDatabase = db.getState();
+        return Promise.resolve(data);
     }
 };

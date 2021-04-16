@@ -26,9 +26,9 @@ module.exports = {
         __dirname: false
     },
     plugins: plugins.concat([
-        new CleanWebpackPlugin({
-            cleanStaleWebpackAssets: false,
-            protectWebpackAssets: false
-        })
+        // new CleanWebpackPlugin({
+        //     cleanStaleWebpackAssets: false,
+        //     protectWebpackAssets: false
+        // })
     ])
 };

@@ -57,4 +57,6 @@ export interface IDataSource {
     saveSentence(enUS: string, zhCN: string, wordId: string): Promise<ISentenceEntity>;
     updateSentence(id: string, enUS: string, zhCN: string): Promise<ISentenceEntity | undefined>;
     deleteSentences(ids: string[]): Promise<0 | 1>;
+    // 
+    getAllData(): Promise<any>;
 }
