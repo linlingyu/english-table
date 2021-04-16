@@ -5,6 +5,7 @@
   "main": "./out/main.js",
   "scripts": {
     "start": "electron .",
+    "setup:mac": "export ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/&& npm i",
     "build:dev": "webpack --mode development",
     "build:dev-main": "webpack --mode development --config webpack.main.config.js",
     "build:dev-renderer": "webpack --mode development --config webpack.renderer.config.js",
