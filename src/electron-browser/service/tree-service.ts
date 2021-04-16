@@ -24,6 +24,10 @@ export const treeService = {
         return dataSource.saveTree(title, parentId);
     },
 
+    update(id: string, title: string): Promise<ITreeEntity> {
+        return dataSource.updateTree(id, title);
+    },
+
     delete(ids: string[]): Promise<0 | 1> {
         return dataSource.deleteTrees(ids);
     }

@@ -1,12 +1,12 @@
 import { Button, Empty, Modal, Form, Input, Table } from "antd";
-import { FileAddOutlined, DeleteOutlined } from "@ant-design/icons";
-import React, { useContext, useState, Key, useEffect } from "react";
+import { FileAddOutlined, DeleteOutlined, FormOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import React, { useContext, useState, useEffect } from "react";
 import { AppContext } from "../store/store";
 import { Sentence } from "./sentence";
-import { ISentence, IWord } from "./interfaces/iword";
+import { IWord } from "./interfaces/iword";
 import style from "../assets/less/word-edit.less";
 import { wordService } from "../service/word-service";
-import { ISentenceEntity, IWordEntity } from "../db/interfaces/idatasource";
+import { IWordEntity } from "../db/interfaces/idatasource";
 // 
 function toWord(wordEntity: IWordEntity): IWord {
     return {
@@ -19,7 +19,7 @@ export function WordEdit(): JSX.Element {
     const {state} = useContext(AppContext),
         [dialogVisible, setDialogVisible] = useState<boolean>(false),
         [loading, setLoading] = useState<boolean>(false),
-        [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]),
+        [currentWord, setCurrentWord] = useState<IWord>(),
         [dataSource, setDataSource] = useState<IWord[]>([]);
     // 
     useEffect(() => {
@@ -36,36 +36,61 @@ export function WordEdit(): JSX.Element {
             });
     }
 
-    function onSubmitWrodForm(values: {word: string}) {
+    function onSubmit(values: IWord) {
         if (!state.selectedKey) {
             return;
         }
         setLoading(true);
-        wordService.save(values.word, state.selectedKey)
-            .then(() => {
-                loadWords(state.selectedKey);
-                setLoading(false);
-                setDialogVisible(false);
-            });
-
-    }
-
-    const rowSelection = {
-        selectedRowKeys,
-        onChange(selectedRowKeys: Key[]) {
-            setSelectedRowKeys(selectedRowKeys);
+        function onSuccess() {
+            loadWords(state.selectedKey);
+            setLoading(false);
+            setDialogVisible(false);
         }
-    };
+        if (currentWord) {
+            wordService.update(values.key, values.word).then(onSuccess);
+        } else {
+            wordService.save(values.word, state.selectedKey).then(onSuccess);
+        }
+    }
+    // 
+    function onDelete(word: IWord) {
+        const modal = Modal.confirm({
+            title: 'Delete Word',
+            icon: <ExclamationCircleOutlined />,
+            content: `Do you want to delete the word: ${word.word}`,
+            cancelButtonProps: {disabled: false},
+            keyboard: false,
+            onOk(): Promise<0 | 1> {
+                modal.update({
+                    cancelButtonProps: {disabled: true}
+                });
+                return wordService.delete(word.key)
+                    .then(() => {
+                        loadWords(state.selectedKey);
+                        return 0;
+                    });
+            }
+        });
+    }
     // 
     return state.selectedKey ?
         <div className={style.container}>
             <div className={style.operationBar}>
-                <Button icon={<FileAddOutlined />} onClick={() => setDialogVisible(true)}/>
-                <Button icon={<DeleteOutlined />}/>
+                <Button
+                    type="primary"
+                    icon={<FileAddOutlined />}
+                    onClick={() => {
+                        setCurrentWord(undefined);
+                        setDialogVisible(true);
+                    }}
+                >Create Key Word</Button>
             </div>
             <Table
+                bordered
+                size="small"
+                showHeader={false}
+                pagination={false}
                 dataSource={dataSource}
-                rowSelection={rowSelection}
                 expandable={{
                     expandedRowRender: (record: IWord) => {
                         return <Sentence wordId={record.key} />;
@@ -73,21 +98,44 @@ export function WordEdit(): JSX.Element {
                 }}
             >
                 <Table.Column title="Key Word" dataIndex="word"/>
+                <Table.Column title="Operation" dataIndex="operation" width={80} align="center"
+                    render={(value: undefined, record: IWord, index: number) => {
+                        return <>
+                            <Button
+                                size="small"
+                                icon={<FormOutlined />}
+                                onClick={() => {
+                                    setCurrentWord(record);
+                                    setDialogVisible(true);
+                                }}
+                            />
+                            <Button
+                                danger
+                                size="small"
+                                type="primary"
+                                icon={<DeleteOutlined />}
+                                onClick={() => onDelete(record)}
+                            />
+                        </>
+                    }}
+                />
             </Table>
             <Modal
-                title="Create a word"
+                title={currentWord ? 'Edit Word' : 'Create Word'}
                 visible={dialogVisible}
                 onCancel={() => setDialogVisible(false)}
                 footer={null}
                 destroyOnClose
             >
                 <Form
-                    name="node-name"
-                    onFinish={onSubmitWrodForm}
+                    name="word-form"
+                    onFinish={onSubmit}
                 >
+                    <Form.Item name="key" initialValue={currentWord?.key} hidden/>
                     <Form.Item
                         label="key word"
                         name="word"
+                        initialValue={currentWord ? currentWord.word : ''}
                         rules={[{
                             required: true,
                             message: 'Please input a word'

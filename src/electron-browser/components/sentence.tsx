@@ -1,4 +1,4 @@
-import { Table, Button, Modal, Form, Input, } from "antd";
+import { Table, Button, Modal, Form, Input, Descriptions } from "antd";
 import React, { useEffect, useState } from "react";
 import { ISentence } from "./interfaces/iword";
 import style from "../assets/less/sentence.less";
@@ -38,27 +38,28 @@ export const Sentence: React.FC<ISentenceProps> = (props: ISentenceProps): JSX.E
             });
     }
 
-    function onModify(values: ISentence) {
+    function onSubmit(values: ISentence) {
         setLoading(true);
-        sentenceService.update(values.key, values.enUS, values.zhCN)
-            .then(() => {
-                setLoading(false);
-                loadSentences(props.wordId);
-                setDialogVisible(false);
-            });
-    }
-
-    function onCreate() {
-        sentenceService.saveSentence('', '', props.wordId)
-            .then(() => loadSentences(props.wordId));
+        function onSuccess() {
+            loadSentences(props.wordId);
+            setLoading(false);
+            setDialogVisible(false);
+        }
+        if (currentSentence) {
+            sentenceService.update(values.key, values.enUS, values.zhCN)
+                .then(onSuccess);
+        } else {
+            sentenceService.saveSentence(values.enUS, values.zhCN, props.wordId)
+                .then(onSuccess);
+        }
     }
 
     function onDelete(sentence: ISentence) {
         const modal = Modal.confirm({
             title: 'This sentence will be delete?',
             icon: <ExclamationCircleOutlined />,
-            cancelButtonProps: {disabled: false},
             content: 'Do you want to delete this sentence?',
+            cancelButtonProps: {disabled: false},
             keyboard: false,
             onOk(): Promise<0 | 1> {
                 modal.update({
@@ -75,28 +76,43 @@ export const Sentence: React.FC<ISentenceProps> = (props: ISentenceProps): JSX.E
 
     return <div className={style.table}>
         <div className={style.operationBar}>
-            <Button icon={<FileAddOutlined />} onClick={onCreate}/>
+            <Button
+                type="primary"
+                icon={<FileAddOutlined />}
+                onClick={() => {
+                    setCurrentSentence(undefined);
+                    setDialogVisible(true);
+                }}
+            >
+                Create Sentence
+            </Button>
         </div>
         <Table
             dataSource={dataSource}
             bordered={true}
+            showHeader={false}
+            pagination={false}
         >
-            <Table.Column title="Sentences" key="Sentences"
-                render={(value: ISentence) => {
-                    return <>
-                        <div className={style.sentenceItem}>en: {value.enUS || 'none'}</div>
-                        <div className={style.sentenceItem}>zh: {value.zhCN || 'none'}</div>
-                    </>;
+            <Table.Column title="Sentences" key="sentences" dataIndex="sentences"
+                render={(value: undefined, record: ISentence, index: number) => {
+                    return <Descriptions
+                        bordered
+                        size="small"
+                        column={1}
+                    >
+                        <Descriptions.Item label="EN:" labelStyle={{width: 50}}>{record.enUS || ''}</Descriptions.Item>
+                        <Descriptions.Item label="ZH:">{record.zhCN || ''}</Descriptions.Item>
+                    </Descriptions>
                 }}
             />
-            <Table.Column title="Operation" key="operation" width={50} align="center"
-                render={(value: ISentence, record: any, index: number) => {
+            <Table.Column title="Operation" key="operation" dataIndex="operation" width={80} align="center"
+                render={(value: undefined, record: ISentence, index: number) => {
                     return <>
                         <Button
                             size="small"
                             icon={<FormOutlined />}
                             onClick={() => {
-                                setCurrentSentence(value);
+                                setCurrentSentence(record);
                                 setDialogVisible(true);
                             }}
                         />
@@ -105,21 +121,22 @@ export const Sentence: React.FC<ISentenceProps> = (props: ISentenceProps): JSX.E
                             size="small"
                             type="primary"
                             icon={<DeleteOutlined />}
-                            onClick={() => onDelete(value)}
+                            onClick={() => onDelete(record)}
                         />
                     </>
                 }}
             />
         </Table>
         <Modal
-            title="Modify Sentence"
+            title={currentSentence ? 'Edit Sentence' : 'Create Sentence'}
             destroyOnClose
             visible={dialogVisible}
             footer={null}
             onCancel={() => setDialogVisible(false)}
         >
             <Form
-                onFinish={onModify}
+                name="sentence-form"
+                onFinish={onSubmit}
             >
                 <Form.Item name="key" initialValue={currentSentence?.key} hidden/>
                 <Form.Item

@@ -43,6 +43,16 @@ export const dataSource: IDataSource = {
         db.get('tree').push(record).write();
         return Promise.resolve(record);
     },
+    updateTree(id: string, title): Promise<ITreeEntity> {
+        db.get('tree')
+            .find({id})
+            .assign({
+                title,
+                modifyTime: new Date()
+            })
+            .write();
+        return Promise.resolve(db.get('tree').find({id}).value());
+    },
     async deleteTrees(ids: string[]): Promise<0 | 1> {
         let words: IWordEntity[] = [];
         for(let i = 0; i < words.length; i++) {
@@ -76,6 +86,16 @@ export const dataSource: IDataSource = {
         }
         db.get('word').push(record).write();
         return Promise.resolve(record);
+    },
+    updateWord(id: string, word: string): Promise<IWordEntity> {
+        db.get('word')
+            .find({id})
+            .assign({
+                word,
+                modifyTime: new Date()
+            })
+            .write();
+        return Promise.resolve(db.get('word').find({id}).value());
     },
     async deleteWords(ids: string[]): Promise<0 | 1> {
         let sentences: ISentenceEntity[] = [];

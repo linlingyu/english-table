@@ -43,11 +43,13 @@ export interface IDataSource {
     findTrees(condition: ITreeEntityOptions): Promise<ITreeEntity[] | undefined>;
     findOneTree(condition: ITreeEntityOptions): Promise<ITreeEntity | undefined>;
     saveTree(title: string, parentId: string): Promise<ITreeEntity>;
+    updateTree(id: string, title: string): Promise<ITreeEntity>;
     deleteTrees(ids: string[]): Promise<0 | 1>;
     // 
     findWords(condition: IWordEntityOptions): Promise<IWordEntity[] | undefined>;
     findOneWord(condition: IWordEntityOptions): Promise<IWordEntity | undefined>;
     saveWord(word: string, treeNodeId: string): Promise<IWordEntity>;
+    updateWord(id: string, word: string): Promise<IWordEntity>;
     deleteWords(ids: string[]): Promise<0 | 1>;
     // 
     findSentences(condition: ISentenceEntityOptions): Promise<ISentenceEntity[] | undefined>;

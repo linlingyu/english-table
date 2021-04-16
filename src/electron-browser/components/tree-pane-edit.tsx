@@ -7,6 +7,7 @@ import { ITreeEntity } from "../db/interfaces/idatasource";
 import { ITreeNode } from "./interfaces/itree";
 import { utility } from "../utility/utility";
 import { AppContext } from "../store/store";
+import { EventDataNode } from "rc-tree/lib/interface";
 // 
 function toTreeNode(treeEntity: ITreeEntity): ITreeNode {
     const treeNode: ITreeNode = {
@@ -30,7 +31,8 @@ export function TreePaneEdit(): JSX.Element {
         [selectedKeys, setSelectedKeys] = useState<Key[]>([]),
         [checkedKeys, setCheckedKeys] = useState<Key[] | {checked: Key[]; halfChecked: Key[]}>([]),
         [dialogVisible, setDialogVisible] = useState<boolean>(false),
-        [dialogTitle, setDialogTitle] = useState<string>('');
+        [selectedNode, setSelectedNode] = useState<ITreeNode>(),
+        [loading, setLoading] = useState<boolean>(false);
     // 
     useEffect(() => {
         treeService.findOne({type: 'root'})
@@ -86,26 +88,32 @@ export function TreePaneEdit(): JSX.Element {
     function onCheck(checkedKeys: Key[] | {checked: Key[]; halfChecked: Key[]}, info: any) {
         setCheckedKeys(checkedKeys);
     }
-
-    function onAdd() {
+    function onCreate() {
         const selectedNode: Key | undefined = utility.lastItem(selectedKeys);
         if (!selectedNode) {
-            Modal.warning({
-                title: 'No node was selected.',
-                content: 'Please select a node at first.'
+            Modal.info({
+                title: 'No tree node was selected.',
+                content: 'Please select a tree node at first.'
             });
             return;
         }
-        // 
-        setDialogTitle('Add a node');
+        setSelectedNode(undefined);
+        setDialogVisible(true);
+    }
+    function onDoublieClick(evt: React.MouseEvent, node: EventDataNode) {
+        evt.preventDefault();
+        if (node.key === treeData[0].key) { // root
+            return;
+        }
+        setSelectedNode({key: node.key as string, title: node.title as string});
         setDialogVisible(true);
     }
     function onDelete() {
         const checkedKeyArray: string[] = checkedKeys as string[];
         if (!checkedKeyArray.length) {
             Modal.info({
-                title: 'No node was checked.',
-                content: 'Please check some nodes at first'
+                title: 'No tree node was checked.',
+                content: 'Please check some tree nodes at first'
             });
             return;
         }
@@ -127,17 +135,25 @@ export function TreePaneEdit(): JSX.Element {
         });
         // 
     }
-    function onSubmitNodeNameForm({name}: any) {
-        const parentId: string = utility.lastItem(selectedKeys) as string;
-        treeService.save(name, parentId)
-            .then((treeEntity: ITreeEntity) => {
-                onLoadData({key: treeEntity.parentId});
-                setDialogVisible(false);
-            });
+    function onSubmit(values: {key: string; name: string}) {
+        setLoading(true);
+        function onSuccess(treeEntity: ITreeEntity) {
+            onLoadData({key: treeEntity.parentId});
+            setLoading(false);
+            setDialogVisible(false);
+        }
+        if (values.key) {
+            treeService.update(values.key, values.name)
+                .then(onSuccess);
+        } else {
+            const parentId: string = utility.lastItem(selectedKeys) as string;
+            treeService.save(values.name, parentId)
+                .then(onSuccess);
+        }
     }
     return <div className={style.container}>
         <div className={style.operation}>
-            <Button type="link" icon={<FolderAddOutlined />} onClick={onAdd} />
+            <Button type="link" icon={<FolderAddOutlined />} onClick={onCreate}/>
             <Button type="link" icon={<DeleteOutlined />} onClick={onDelete}/>
         </div>
         <div className={style.treePanel}>
@@ -147,13 +163,14 @@ export function TreePaneEdit(): JSX.Element {
                 loadData={onLoadData}
                 treeData={treeData}
                 selectedKeys={selectedKeys}
-                onSelect={onSelect}
                 checkedKeys={checkedKeys}
+                onSelect={onSelect}
                 onCheck={onCheck}
+                onDoubleClick={onDoublieClick}
             />
         </div>
         <Modal
-            title={dialogTitle}
+            title={selectedNode ? 'Rename' : 'Create'}
             visible={dialogVisible}
             onCancel={() => setDialogVisible(false)}
             footer={null}
@@ -161,11 +178,13 @@ export function TreePaneEdit(): JSX.Element {
         >
             <Form
                 name="node-name"
-                onFinish={onSubmitNodeNameForm}
+                onFinish={onSubmit}
             >
+                <Form.Item name="key" initialValue={selectedNode?.key} hidden />
                 <Form.Item
                     label="name"
                     name="name"
+                    initialValue={selectedNode?.title}
                     rules={[{
                         required: true,
                         message: 'Please input a name'
@@ -177,6 +196,7 @@ export function TreePaneEdit(): JSX.Element {
                     <Button
                         type="primary"
                         htmlType="submit"
+                        loading={loading}
                     >Submit</Button>
                 </Form.Item>
             </Form>

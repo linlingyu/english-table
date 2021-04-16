@@ -8,5 +8,13 @@ export const wordService = {
 
     save(word: string, treeNodeId: string): Promise<IWordEntity> {
         return dataSource.saveWord(word, treeNodeId);
+    },
+
+    update(id: string, word: string): Promise<IWordEntity> {
+        return dataSource.updateWord(id, word);
+    },
+
+    delete(id: string): Promise<0 | 1> {
+        return dataSource.deleteWords([id]);
     }
 }
