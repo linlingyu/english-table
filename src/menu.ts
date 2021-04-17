@@ -45,7 +45,10 @@ function onImport(menuItem: MenuItem, browserWindow: BrowserWindow | undefined) 
 const menuInstance = Menu.buildFromTemplate([{
     label: app.name,
     submenu: [
-        {role: 'about'},
+        {
+            role: 'about',
+            label: 'About Englist Table'
+        },
         {type: 'separator'},
         {role: 'close'}
     ]
