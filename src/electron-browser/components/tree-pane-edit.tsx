@@ -190,7 +190,7 @@ export function TreePaneEdit(): JSX.Element {
                         message: 'Please input a name'
                     }]}
                 >
-                    <Input/>
+                    <Input ref={(input: Input | null) => input?.focus()}/>
                 </Form.Item>
                 <Form.Item>
                     <Button

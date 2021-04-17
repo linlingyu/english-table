@@ -148,7 +148,7 @@ export const Sentence: React.FC<ISentenceProps> = (props: ISentenceProps): JSX.E
                         message: 'Please input an english sentence'
                     }]}
                 >
-                    <Input.TextArea placeholder="Input an english sentence" />
+                    <Input.TextArea placeholder="Input an english sentence" ref={(input: Input | null) => input?.focus()} />
                 </Form.Item>
                 <Form.Item
                     label="zh"

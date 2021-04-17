@@ -141,7 +141,7 @@ export function WordEdit(): JSX.Element {
                             message: 'Please input a word'
                         }]}
                     >
-                        <Input placeholder="Input a word"/>
+                        <Input placeholder="Input a word" ref={(input: Input | null) => input?.focus()}/>
                     </Form.Item>
                     <Form.Item>
                         <Button
