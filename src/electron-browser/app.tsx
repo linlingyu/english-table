@@ -1,10 +1,10 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { Spin } from "antd";
+import React, { useEffect, useReducer } from "react";
 import { AppContext, reducer } from "./store/store";
 import { TabLayout } from "./components/layout";
 import { ipcRenderer, IpcRendererEvent } from "electron";
 import { service } from "./service";
 // 
+
 export function App(): JSX.Element {
     const [state, dispatch] = useReducer(reducer, {
             type: 'view',
@@ -14,13 +14,10 @@ export function App(): JSX.Element {
     useEffect(() => {
         service.initializeEvent();
         // 
-        ipcRenderer.on('SWITCH_MODE', (event: IpcRendererEvent, args: {mode: string}) => {
-            if (state.type === args.mode) {
-                return;
-            }
+        ipcRenderer.on('SWITCH_MODE', (event: IpcRendererEvent, {mode}) => {
             dispatch({
                 type: 'UPDATE',
-                payload: {type: args.mode}
+                payload: {type: mode}
             });
         });
         // 

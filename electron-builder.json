@@ -1,0 +1,18 @@
+{
+    "appId": "com.english-table.app",
+    "productName": "English Table",
+    "directories": {
+        "app": ".",
+        "output": "build"
+    },
+    "dmg": {
+        "title": "${productName}_${version}"
+    },
+    "files": [
+        "**/*",
+        "!src/"
+    ],
+    "electronDownload": {
+        "mirror": "http://npm.taobao.org/mirrors/electron/"
+    }
+}
