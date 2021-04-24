@@ -1,16 +1,24 @@
 import path from "path";
+import fs from "fs-plus";
+import os from "os";
 import { IDataSource, ITreeEntity, ITreeEntityOptions, IWordEntity, IWordEntityOptions, ISentenceEntity, ISentenceEntityOptions } from "./interfaces/idatasource";
 import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import { nanoid } from "nanoid";
 // 
+const directory: string = path.join(os.homedir(), '.english-table');
+
 export interface IDatabase {
     tree: ITreeEntity[];
     word: IWordEntity[];
     sentence: ISentenceEntity[];
 }
-
-const db = low(new FileSync<IDatabase>(path.join(__dirname, 'db.json')));
+// 
+if (!fs.isDirectorySync(directory)) {
+    fs.makeTreeSync(directory);
+}
+const db = low(new FileSync<IDatabase>(path.join(os.homedir(), '.english-table', 'db.json')));
+// const db = low(new FileSync<IDatabase>(path.join(__dirname, 'db.json')));
 db.defaults({
     tree: [{
         id: nanoid(16),
