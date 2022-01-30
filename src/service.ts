@@ -34,7 +34,7 @@ export const service = {
         } catch(error) {
             dialog.showMessageBox(browserWindow, {
                 title: 'Error',
-                message: error.message,
+                message: (<any>error).message,
                 type: 'error'
             });
         }

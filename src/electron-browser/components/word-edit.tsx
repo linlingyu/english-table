@@ -75,16 +75,6 @@ export function WordEdit(): JSX.Element {
     // 
     return state.selectedKey ?
         <div className={style.container}>
-            <div className={style.operationBar}>
-                <Button
-                    type="primary"
-                    icon={<FileAddOutlined />}
-                    onClick={() => {
-                        setCurrentWord(undefined);
-                        setDialogVisible(true);
-                    }}
-                >Create Key Word</Button>
-            </div>
             <Table
                 bordered
                 size="small"
@@ -120,6 +110,16 @@ export function WordEdit(): JSX.Element {
                     }}
                 />
             </Table>
+            <div className={style.operationBar}>
+                <Button
+                    type="primary"
+                    icon={<FileAddOutlined />}
+                    onClick={() => {
+                        setCurrentWord(undefined);
+                        setDialogVisible(true);
+                    }}
+                >Create Key Word</Button>
+            </div>
             <Modal
                 title={currentWord ? 'Edit Word' : 'Create Word'}
                 visible={dialogVisible}
