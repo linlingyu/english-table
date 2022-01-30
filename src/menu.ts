@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, MenuItem, dialog } from "electron";
+import { app, BrowserWindow, Menu, MenuItem, dialog, Event, ContextMenuParams, clipboard } from "electron";
 import { service } from "./service";
 //
 function onSwitchMode(menuItem: MenuItem, browserWindow: BrowserWindow | undefined) {
@@ -82,9 +82,34 @@ const menuInstance = Menu.buildFromTemplate([{
     }]
 }]);
 // 
+const contextMenu: Menu = Menu.buildFromTemplate([{
+    label: 'Copy',
+    click() {
+        if (!selectionText) {
+            return;
+        }
+        clipboard.writeText(selectionText);
+        selectionText = '';
+    }
+}]);
+// 
+let selectionText: string = '';
+const onContextMenuHandler = (evt: Event, params: ContextMenuParams) => {
+    if (!params.selectionText) {
+        return;
+    }
+    evt.preventDefault();
+    selectionText = params.selectionText;
+    contextMenu.popup();
+};
+// 
 export const menu = {
     initialize(browserWindow: BrowserWindow) {
         service.initializeEvent(browserWindow);
         Menu.setApplicationMenu(menuInstance);
+        // 
+        browserWindow.webContents.on('context-menu', onContextMenuHandler);
+        // browserWindow.webContents.on('context-menu', ())
+        browserWindow.once('close', () => browserWindow.webContents.off('context-menu', onContextMenuHandler));
     }
 }
