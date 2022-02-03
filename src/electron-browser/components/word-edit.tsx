@@ -87,7 +87,10 @@ export function WordEdit(): JSX.Element {
                 bordered
                 size="small"
                 showHeader={false}
-                pagination={false}
+                pagination={{
+                    position: ['bottomRight'],
+                    defaultPageSize: 20
+                }}
                 dataSource={dataSource}
                 expandable={{
                     expandedRowRender: (record: IWord) => {

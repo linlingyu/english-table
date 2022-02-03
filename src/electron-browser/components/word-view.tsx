@@ -43,7 +43,10 @@ export function WordView(): JSX.Element {
             bordered
             size="small"
             showHeader={false}
-            pagination={false}
+            pagination={{
+                position: ['bottomRight'],
+                defaultPageSize: 20
+            }}
             dataSource={dataSource}
         >
             <Table.Column title="Key Word" render={(value: undefined, record: IWord, index: number) => {
