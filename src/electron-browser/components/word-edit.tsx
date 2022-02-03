@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { Button, Empty, Modal, Form, Input, Table } from "antd";
 import { FileAddOutlined, DeleteOutlined, FormOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { AppContext } from "../store/store";
@@ -20,7 +20,8 @@ export function WordEdit(): JSX.Element {
         [dialogVisible, setDialogVisible] = useState<boolean>(false),
         [loading, setLoading] = useState<boolean>(false),
         [currentWord, setCurrentWord] = useState<IWord>(),
-        [dataSource, setDataSource] = useState<IWord[]>([]);
+        [dataSource, setDataSource] = useState<IWord[]>([]),
+        ref = useRef<any>();
     // 
     useEffect(() => {
         loadWords(state.selectedKey);
@@ -49,7 +50,9 @@ export function WordEdit(): JSX.Element {
         if (currentWord) {
             wordService.update(values.key, values.word).then(onSuccess);
         } else {
-            wordService.save(values.word, state.selectedKey).then(onSuccess);
+            wordService.save(values.word, state.selectedKey)
+                .then(onSuccess)
+                .then(scrollToBottom);
         }
     }
     // 
@@ -72,9 +75,14 @@ export function WordEdit(): JSX.Element {
             }
         });
     }
+    //
+    function scrollToBottom() {
+        const div: HTMLDivElement = ref.current.offsetParent;
+        div.scrollTop = div.scrollHeight;
+    }
     // 
     return state.selectedKey ?
-        <div className={style.container}>
+        <div ref={ref} className={style.container}>
             <Table
                 bordered
                 size="small"
